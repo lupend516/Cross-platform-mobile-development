@@ -1,78 +1,70 @@
 import 'package:flutter/material.dart';
+import 'screens.dart';
 
 void main() => runApp(MyApp());
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Assignment 1',
-      home: MyHomePage(),
-    );
-  }
+  State<MyApp> createState() => _MyAppState();
 }
 
-class MyHomePage extends StatefulWidget {
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
+class _MyAppState extends State<MyApp> {
+  ThemeMode _themeMode = ThemeMode.light;
+  Locale _locale = Locale('ru');
+  int _selectedIndex = 1; // по умолчанию – «Сессии»
 
-class _MyHomePageState extends State<MyHomePage> {
-  String _displayText = "Привет, мир!";
-  Color _bgColor = Colors.white;
+  final List<Widget> _pages = [
+    MapScreen(),
+    SessionsScreen(),
+    AccountScreen(),
+  ];
 
-  void _addText() {
+  void _onItemTapped(int index) {
     setState(() {
-      _displayText += " Добавлено!";
-    });
-  }
-
-  void _removeText() {
-    setState(() {
-      if (_displayText.length > 0) {
-        _displayText = _displayText.replaceFirst(" Добавлено!", "");
-      }
-    });
-  }
-
-  void _changeColor() {
-    setState(() {
-      _bgColor = _bgColor == Colors.white ? Colors.lightBlueAccent : Colors.white;
+      _selectedIndex = index;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: _bgColor,
-      appBar: AppBar(
-        title: Text('Мое приложение'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              _displayText,
-              style: TextStyle(fontSize: 20),
-              textAlign: TextAlign.center,
+    return MaterialApp(
+      title: 'NavApp',
+      theme: ThemeData.light(),
+      darkTheme: ThemeData.dark(),
+      themeMode: _themeMode,
+      locale: _locale,
+      home: Scaffold(
+        body: IndexedStack(
+          index: _selectedIndex,
+          children: _pages,
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _selectedIndex,
+          onTap: _onItemTapped,
+          items: [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.location_on),
+              label: 'Карта',
             ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _addText,
-              child: Text('Добавить текст'),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.list),
+              label: 'Сессии',
             ),
-            ElevatedButton(
-              onPressed: _removeText,
-              child: Text('Удалить текст'),
-            ),
-            ElevatedButton(
-              onPressed: _changeColor,
-              child: Text('Изменить цвет'),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person),
+              label: 'Аккаунт',
             ),
           ],
         ),
       ),
+      // именованные маршруты для модалей/отдельных экранов
+      routes: {
+        CitySelectionScreen.routeName: (_) => CitySelectionScreen(),
+        AuthScreen.routeName: (_) => AuthScreen(),
+        PayScreen.routeName: (_) => PayScreen(),
+      },
     );
   }
 }
